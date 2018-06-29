@@ -2,12 +2,34 @@ import React from 'react'
 import { Container } from 'reactstrap'
 import { Route, Switch } from 'react-router-dom'
 
+import 'semantic-ui-css/semantic.min.css'
 import '@coreui/icons/css/coreui-icons.min.css'
 import '../scss/style.css'
 
 import { AppBreadcrumb, AppFooter, AppHeader, AppSidebar, AppSidebarNav } from '@coreui/react'
 import { Header } from '../components/dashboard/Header'
 import { routes } from '../config/routes'
+
+function renderRoute(route, idx) {
+  return (
+    <Route
+      key={idx}
+      path={route.url}
+      exact={route.exact}
+      name={route.name}
+      render={props => <route.component {...props} />}
+    />
+  )
+}
+
+function renderRoutes(routes) {
+  return routes.map((route, idx) => {
+    if (route.children && route.children.length)
+      return route.children.map((route, idx) => (route.component ? renderRoute(route, idx) : null))
+
+    return route.component ? renderRoute(route, idx) : null
+  })
+}
 
 export default function Dashboard(props) {
   return (
@@ -27,19 +49,7 @@ export default function Dashboard(props) {
           <AppBreadcrumb appRoutes={routes} />
 
           <Container fluid>
-            <Switch>
-              {routes.map((route, idx) => {
-                return route.component ? (
-                  <Route
-                    key={idx}
-                    path={route.url}
-                    exact={route.exact}
-                    name={route.name}
-                    render={props => <route.component {...props} />}
-                  />
-                ) : null
-              })}
-            </Switch>
+            <Switch>{renderRoutes(routes)}</Switch>
           </Container>
         </main>
       </div>
